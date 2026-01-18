@@ -1,0 +1,75 @@
+﻿
+> phase1@0.1.0 build
+> next build
+
+node.exe : ΓÜá Warning: Next.js 
+inferred your workspace root, but it 
+may not be correct.
+At C:\Program Files\nodejs\npm.ps1:29 
+char:3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpeci 
+   fied: (ΓÜá Warning: Ne...not be co  
+  rrect.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCo 
+   mmandError
+ 
+ We detected multiple lockfiles and 
+selected the directory of 
+C:\Users\Rahul Kanojia\Desktop\Kanojia 
+Furniture 
+Shoppe\phase1\package-lock.json as the 
+root directory.
+ To silence this warning, set 
+`turbopack.root` in your Next.js 
+config, or consider removing one of 
+the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-
+reference/config/next-config-js/turbopa
+ck#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\Rahul 
+Kanojia\Desktop\Kanojia Furniture 
+Shoppe\phase1\phase1\package-lock.json
+
+Γû▓ Next.js 16.1.3 (Turbopack)
+- Environments: .env
+
+ΓÜá The "middleware" file convention 
+is deprecated. Please use "proxy" 
+instead. Learn more: https://nextjs.org
+/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Γ¿» ERROR: This build is using 
+Turbopack, with a `webpack` config and 
+no `turbopack` config.
+   This may be a mistake.
+
+   As of Next.js 16 Turbopack is 
+enabled by default and
+   custom webpack configurations may 
+need to be migrated to Turbopack.
+
+   NOTE: your `webpack` config may 
+have been added by a configuration 
+plugin.
+
+   To configure Turbopack, see https://
+nextjs.org/docs/app/api-reference/next-
+config-js/turbopack
+
+   TIP: Many applications work fine 
+under Turbopack with no configuration,
+   if that is the case for you, you 
+can silence this error by passing the
+   `--turbopack` or `--webpack` flag 
+explicitly or simply setting an 
+   empty turbopack config in your Next 
+config file (e.g. `turbopack: {}`).
+
+> Build error occurred
+Error: Call retries were exceeded
+    at ignore-listed frames {
+  type: 'WorkerError'
+}
