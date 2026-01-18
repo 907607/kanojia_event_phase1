@@ -1,52 +1,94 @@
-"use client";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { verifyToken } from "@/lib/auth";
+import Link from "next/link";
 
-import { useEffect, useState } from "react";
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
 
-export default function AdminDashboard() {
-  const [stats, setStats] = useState({
-    totalOrders: 0,
-    activeExhibitions: 0,
-    totalRevenue: 0,
-    recentOrders: [],
-  });
-  const [loading, setLoading] = useState(true);
+  if (!token) redirect("/login");
 
-  useEffect(() => {
-    fetch("/api/admin/stats")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.totalOrders !== undefined) setStats(data);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const user = verifyToken(token);
+  if (!user || user.role !== "ADMIN") {
+    redirect("/login");
+  }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-            Dashboard Overview
-          </h1>
-          <p className="text-slate-500 mt-2">
-            Welcome back. Here's what's happening today.
-          </p>
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      {/* STATE MANAGER: Hidden Checkbox 
+        Controls the sidebar toggle without JavaScript.
+      */}
+      <input type="checkbox" id="sidebar-toggle" className="peer hidden" />
+
+      {/* MOBILE HEADER (Visible only on Mobile)
+        Theme: White background, Dark text
+      */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-md">
+            <span className="text-white font-bold text-sm">K</span>
+          </div>
+          <span className="font-bold text-slate-900">Admin Panel</span>
         </div>
+        {/* Toggle Button (Hamburger) */}
+        <label
+          htmlFor="sidebar-toggle"
+          className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </label>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Revenue Card */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                Total Revenue
-              </p>
-              <h3 className="text-3xl font-bold text-slate-900 mt-2">
-                {loading ? "..." : `₹${stats.totalRevenue.toLocaleString()}`}
-              </h3>
+      {/* MOBILE OVERLAY 
+        Darkens screen when menu is open on mobile.
+      */}
+      <label
+        htmlFor="sidebar-toggle"
+        className="fixed inset-0 bg-slate-900/50 z-40 hidden peer-checked:block md:peer-checked:hidden backdrop-blur-sm transition-opacity"
+      />
+
+      {/* SIDEBAR NAVIGATION
+        Theme: Dark (bg-slate-900) for Desktop
+        Behavior: Slides in on Mobile, Fixed on Desktop
+      */}
+      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white shadow-xl transition-transform duration-300 ease-in-out -translate-x-full peer-checked:translate-x-0 md:translate-x-0">
+        <div className="flex flex-col h-full p-6">
+          {/* Desktop Brand Logo */}
+          <div className="hidden md:flex items-center gap-3 mb-8">
+            <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/50">
+              <span className="text-white font-bold text-xl">K</span>
             </div>
-            <div className="p-3 bg-green-50 text-green-600 rounded-xl">
+            <div>
+              <h2 className="text-lg font-bold tracking-tight text-white leading-tight">
+                Admin Panel
+              </h2>
+              <p className="text-xs text-slate-400">Furniture Shoppe</p>
+            </div>
+          </div>
+
+          {/* Mobile Close Button */}
+          <div className="md:hidden flex justify-end mb-6">
+            <label
+              htmlFor="sidebar-toggle"
+              className="p-2 text-slate-400 hover:text-white cursor-pointer"
+            >
               <svg
                 className="w-6 h-6"
                 fill="none"
@@ -57,27 +99,20 @@ export default function AdminDashboard() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
-            </div>
+            </label>
           </div>
-        </div>
 
-        {/* Orders Card */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                Total Orders
-              </p>
-              <h3 className="text-3xl font-bold text-slate-900 mt-2">
-                {loading ? "..." : stats.totalOrders}
-              </h3>
-            </div>
-            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+          {/* Navigation Links */}
+          <nav className="flex flex-col gap-1.5 flex-1">
+            <Link
+              href="/admin"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all group"
+            >
               <svg
-                className="w-6 h-6"
+                className="w-5 h-5 text-slate-400 group-hover:text-blue-400 transition-colors"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -86,27 +121,18 @@ export default function AdminDashboard() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                 />
               </svg>
-            </div>
-          </div>
-        </div>
+              <span className="font-medium">Dashboard</span>
+            </Link>
 
-        {/* Exhibitions Card */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                Active Exhibitions
-              </p>
-              <h3 className="text-3xl font-bold text-slate-900 mt-2">
-                {loading ? "..." : stats.activeExhibitions}
-              </h3>
-            </div>
-            <div className="p-3 bg-purple-50 text-purple-600 rounded-xl">
+            <Link
+              href="/admin/exhibitions"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all group"
+            >
               <svg
-                className="w-6 h-6"
+                className="w-5 h-5 text-slate-400 group-hover:text-purple-400 transition-colors"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -118,93 +144,74 @@ export default function AdminDashboard() {
                   d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                 />
               </svg>
+              <span className="font-medium">Exhibitions</span>
+            </Link>
+
+            <Link
+              href="/admin/products"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all group"
+            >
+              <svg
+                className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition-colors"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                />
+              </svg>
+              <span className="font-medium">Products</span>
+            </Link>
+
+            <Link
+              href="/admin/salesmen"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all group"
+            >
+              <svg
+                className="w-5 h-5 text-slate-400 group-hover:text-green-400 transition-colors"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                />
+              </svg>
+              <span className="font-medium">Salesmen</span>
+            </Link>
+          </nav>
+
+          {/* User Profile */}
+          <div className="mt-auto pt-6 border-t border-slate-800">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-xs font-bold ring-2 ring-slate-800">
+                {user.username.substring(0, 2).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white truncate">
+                  {user.username}
+                </p>
+                <p className="text-xs text-slate-400 truncate">Administrator</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </aside>
 
-      {/* Recent Orders Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-          <h3 className="font-bold text-slate-900 text-lg">Recent Orders</h3>
-          <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-            View All
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="p-12 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600"></div>
-            <p className="mt-2 text-slate-500">Loading data...</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 border-b border-slate-100">
-                <tr>
-                  <th className="px-6 py-4 font-semibold text-slate-600">
-                    Customer
-                  </th>
-                  <th className="px-6 py-4 font-semibold text-slate-600">
-                    Exhibition
-                  </th>
-                  <th className="px-6 py-4 font-semibold text-slate-600">
-                    Amount
-                  </th>
-                  <th className="px-6 py-4 font-semibold text-slate-600">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 font-semibold text-slate-600">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {stats.recentOrders.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-6 py-12 text-center text-slate-500"
-                    >
-                      No orders found yet.
-                    </td>
-                  </tr>
-                ) : (
-                  stats.recentOrders.map((order: any) => (
-                    <tr
-                      key={order.id}
-                      className="hover:bg-slate-50/80 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="font-semibold text-slate-900">
-                          {order.customerName}
-                        </div>
-                        <div className="text-xs text-slate-500 mt-0.5">
-                          Salesman: {order.salesman?.username}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-slate-600">
-                        {order.exhibition?.name}
-                      </td>
-                      <td className="px-6 py-4 font-bold text-slate-900">
-                        ₹{order.totalAmount.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Confirmed
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 font-mono text-xs">
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {/* MAIN CONTENT
+        Fix: md:ml-64 ensures margin is only on desktop.
+        Fix: pt-20 ensures content isn't hidden under mobile header.
+      */}
+      <main className="flex-1 md:ml-64 p-4 sm:p-8 min-h-screen pt-20 md:pt-8 transition-all">
+        <div className="max-w-7xl mx-auto">{children}</div>
+      </main>
     </div>
   );
 }
