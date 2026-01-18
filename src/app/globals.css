@@ -1,26 +1,107 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@source "../../src";
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Design System Variables */
+:root {
+  /* Background Colors */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  /* Primary Brand Colors */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-foreground: #ffffff;
+
+  /* Secondary Colors */
+  --secondary: #64748b;
+  --secondary-hover: #475569;
+  --secondary-foreground: #ffffff;
+
+  /* Success/Error Colors */
+  --success: #059669;
+  --warning: #d97706;
+  --error: #dc2626;
+
+  /* Border & Divider */
+  --border: #e2e8f0;
+  --divider: #cbd5e1;
+
+  /* Text Colors */
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f172a;
+    --foreground: #f1f5f9;
+    --card: #1e293b;
+    --card-foreground: #f1f5f9;
+
+    --border: #334155;
+    --divider: #475569;
+
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
   }
+}
+
+@theme {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility Classes for Consistency */
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-sm;
+}
+
+.btn-secondary {
+  @apply bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-900 dark:text-white font-medium px-4 py-2 rounded-lg transition-colors;
+}
+
+.card {
+  @apply bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700;
+}
+
+.input-field {
+  @apply w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 outline-none transition-all;
+}
+
+.label-text {
+  @apply block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1;
+}
+
+.heading-primary {
+  @apply text-3xl font-bold tracking-tight text-slate-900 dark:text-white;
+}
+
+.heading-secondary {
+  @apply text-xl font-semibold text-slate-900 dark:text-white;
+}
+
+.text-body {
+  @apply text-slate-600 dark:text-slate-300;
+}
+
+.text-muted {
+  @apply text-slate-500 dark:text-slate-400;
 }

@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  SALESMAN
+}
+
+enum ExhibitionStatus {
+  PLANNING
+  LIVE
+  CLOSED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  role      Role     @default(SALESMAN)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  // Specific to Salesman
+  assignedExhibitionId String?
+  assignedExhibition   Exhibition? @relation(fields: [assignedExhibitionId], references: [id])
+
+  orders Order[]
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  sku         String   @unique
+  basePrice   Float
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Exhibition {
+  id        String   @id @default(uuid())
+  name      String
+  city      String
+  startDate DateTime
+  endDate   DateTime?
+  status    ExhibitionStatus @default(PLANNING)
+  description String?
+  imageUrl    String?
+  createdAt DateTime @default(now())
+
+  salesmen User[]
+  orders   Order[]
+}
+
+model Order {
+  id                String   @id @default(uuid())
+  
+  exhibitionId      String
+  salesmanId        String
+  
+  exhibition        Exhibition @relation(fields: [exhibitionId], references: [id])
+  salesman          User       @relation(fields: [salesmanId], references: [id])
+
+  customerName      String
+  customerPhone     String
+  customerAddress   String?
+
+  productSnapshotId String
+  productName       String
+  productSku        String
+  productPrice      Float
+  
+  quantity          Int
+  totalAmount       Float
+  
+  paymentRef        String
+  
+  createdAt         DateTime @default(now())
+}
